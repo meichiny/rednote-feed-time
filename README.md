@@ -6,6 +6,8 @@
 
 小红书 feed 信息流中不显示帖子的发布时间，具有时效性的帖子无法直观分辨是否已过时。帖子的标题和封面图往往只为吸引眼球，无法从中得知发布时间。本插件让你在浏览 feed 时，无需点开帖子详情即可看到帖子生成时间，方便快速决定是否点开阅读。
 
+![效果示例](feed-time-example.png)
+
 ## 工作原理
 
 每条笔记的 ID 前 8 位十六进制字符编码了 Unix 时间戳（秒级），将其解码为 `yyyy-MM-dd HH:mm` 格式显示在笔记卡片上。
@@ -41,6 +43,8 @@ Shows the generation time of notes on Xiaohongshu (RedNote) feeds.
 The RedNote feed does not display the publish time of each post, making it impossible to tell at a glance whether a time-sensitive post is outdated. Titles and cover images are often designed for click-through, not to indicate when the post was created. This extension lets you see the generation time of each note while browsing the feed, without opening the post, helping you decide quickly whether to read it.
 
 ## How it works
+
+![Screenshot](feed-time-example.png)
 
 The first 8 hex characters of each note ID encode a Unix timestamp (seconds). The extension decodes it to `yyyy-MM-dd HH:mm` format and displays it on each note card.
 
