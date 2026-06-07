@@ -14,15 +14,21 @@ The first 8 hex characters of each note ID encode a Unix timestamp (seconds). Th
 
 ## 安装 / Installation
 
-1. 打开 `chrome://extensions`
-2. 开启「开发者模式」（右上角）
-3. 点击「加载已解压的扩展程序」
-4. 选择本项目文件夹
+### 从 GitHub Release 安装 / Install from GitHub Release
 
-1. Open `chrome://extensions`
-2. Enable "Developer mode" (top right)
-3. Click "Load unpacked"
-4. Select this project folder
+1. 前往 [Releases](https://github.com/meichiny/rednote-feed-time/releases) 页面，下载最新版本的 `rednote-feed-time-v*.zip`
+2. 解压到本地文件夹
+3. 打开 `chrome://extensions`
+4. 开启「开发者模式」（右上角）
+5. 点击「加载已解压的扩展程序」
+6. 选择解压后的文件夹
+
+1. Go to the [Releases](https://github.com/meichiny/rednote-feed-time/releases) page and download the latest `rednote-feed-time-v*.zip`
+2. Unzip to a local folder
+3. Open `chrome://extensions`
+4. Enable "Developer mode" (top right)
+5. Click "Load unpacked"
+6. Select the unzipped folder
 
 ## 支持页面 / Supported Pages
 
