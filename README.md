@@ -12,6 +12,15 @@
 
 每条笔记的 ID 前 8 位十六进制字符编码了 Unix 时间戳（秒级），将其解码为 `yyyy-MM-dd HH:mm` 格式显示在笔记卡片上。
 
+## 排序与筛选
+
+点击浏览器工具栏中的扩展图标打开弹出面板，可以：
+
+- **排序方式**：按笔记生成时间升序（旧→新）或降序（新→旧）排列信息流
+- **时间筛选**：只显示一周内、一个月内或一年内发布的笔记
+
+设置会自动保存，刷新页面或重新打开浏览器后依然有效。
+
 ## 安装
 
 ### 构建
@@ -72,6 +81,15 @@ The RedNote feed does not display the publish time of each post, making it impos
 ![Screenshot](feed-time-example.png)
 
 The first 8 hex characters of each note ID encode a Unix timestamp (seconds). The extension decodes it to `yyyy-MM-dd HH:mm` format and displays it on each note card.
+
+## Sort & Filter
+
+Click the extension icon in the browser toolbar to open the popup panel:
+
+- **Sort**: Arrange feed notes by generation time, ascending (old→new) or descending (new→old)
+- **Filter**: Show only notes from the last week, month, or year
+
+Settings are automatically saved and persist across page reloads.
 
 ## Installation
 
