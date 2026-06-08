@@ -123,6 +123,7 @@
   function applySort(cards) {
     if (state.sortOrder === 'none') {
       cards.forEach((card) => card.style.removeProperty('order'));
+      console.log('[RFT] applySort reset order');
       return;
     }
     const groups = new Map();
@@ -132,13 +133,28 @@
       groups.get(parent).push(card);
     });
     groups.forEach((groupCards) => {
+      const parent = groupCards[0].parentElement;
+      const parentDisplay = getComputedStyle(parent).display;
+      console.log('[RFT] applySort parent display:', parentDisplay);
+
       const sorted = groupCards
         .map((card) => ({ card, time: getCardTimestamp(card) }))
         .filter((item) => item.time !== null)
         .sort((a, b) => (state.sortOrder === 'asc' ? a.time - b.time : b.time - a.time));
 
-      sorted.forEach((item, i) => { item.card.style.order = i; });
-      console.log('[RFT] applySort sorted', sorted.length, 'cards via CSS order');
+      sorted.forEach((item, i) => {
+        item.card.style.setProperty('order', String(i), 'important');
+        item.card.style.setProperty('-webkit-order', String(i), 'important');
+      });
+      // Verify order was set
+      const check = sorted[0].card.style.order;
+      console.log('[RFT] applied order via CSS, sample order=', check);
+
+      // After 2s, check if order was reverted
+      setTimeout(() => {
+        const still = sorted[0].card.style.order;
+        console.log('[RFT] order after 2s:', still, '(reverted?', still !== check ? 'YES' : 'no');
+      }, 2000);
     });
   }
 
