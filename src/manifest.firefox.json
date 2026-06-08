@@ -1,8 +1,13 @@
 {
   "manifest_version": 3,
   "name": "RedNote Feed Time",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Shows the generation time of notes on Xiaohongshu (RedNote) feeds by decoding the note ID.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "RedNote Feed Time"
+  },
+  "permissions": ["storage"],
   "host_permissions": [
     "https://www.xiaohongshu.com/explore*",
     "https://www.xiaohongshu.com/user/profile/*"
