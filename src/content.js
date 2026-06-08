@@ -2,6 +2,7 @@
   const { pathname, search } = window.location;
   if (!pathname.startsWith('/explore') && !pathname.startsWith('/user/profile/')) return;
   if (pathname.includes('search') || search.includes('keyword')) return;
+  console.log('[RFT] content script loaded, pathname:', pathname);
 
   const NOTE_ID_REGEX = /\/explore\/([a-f0-9]{24})/;
 
@@ -73,6 +74,7 @@
     return decodeTimestamp(m[1]).getTime();
   }
 
+  let debugCardCount = 0;
   function findAllCards() {
     const cards = [];
     const seen = new Set();
@@ -126,16 +128,21 @@
       groups.get(parent).push(card);
     });
     groups.forEach((groupCards) => {
-      const sorted = groupCards
-        .map((card) => ({ card, time: getCardTimestamp(card) }))
+      const entries = groupCards.map((card) => ({ card, time: getCardTimestamp(card) }));
+      console.log('[RFT] applySort entries:', entries.map((e) => ({ time: e.time ? new Date(e.time).toISOString() : null })));
+
+      const sorted = entries
         .filter((item) => item.time !== null)
         .sort((a, b) => (state.sortOrder === 'asc' ? a.time - b.time : b.time - a.time));
 
       const validCards = groupCards.filter((c) => getCardTimestamp(c) !== null);
       const needsReorder = sorted.some((item, i) => item.card !== validCards[i]);
+      console.log('[RFT] applySort needsReorder:', needsReorder, 'groupCards:', groupCards.length, 'sorted:', sorted.length);
       if (!needsReorder) return;
 
+      console.log('[RFT] applySort moving cards...');
       sorted.forEach((item) => item.card.parentElement.appendChild(item.card));
+      console.log('[RFT] applySort DONE');
     });
   }
 
@@ -157,6 +164,8 @@
 
   function reapply() {
     const cards = findAllCards();
+    console.log('[RFT] reapply: found', cards.length, 'cards at levels',
+      cards.map((c) => c.tagName + (c.className ? '.' + c.className.split(' ')[0] : '')));
     if (!cards.length) return;
     applySort(cards);
     applyFilter(cards);
@@ -175,8 +184,10 @@
   }
 
   function handleMessage(msg) {
+    console.log('[RFT] handleMessage received:', JSON.stringify(msg));
     if (['none', 'asc', 'desc'].includes(msg.sortOrder)) state.sortOrder = msg.sortOrder;
     if (['all', '7d', '30d', '365d'].includes(msg.timeRange)) state.timeRange = msg.timeRange;
+    console.log('[RFT] handleMessage state now:', JSON.stringify(state));
     reapply();
   }
 
