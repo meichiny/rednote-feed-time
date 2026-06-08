@@ -1,8 +1,10 @@
 (function () {
   const controls = document.getElementById('controls');
   const notRednote = document.getElementById('not-rednote');
+  let restored = false;
 
   chrome.storage.local.get(['sortOrder', 'timeRange'], (result) => {
+    if (restored) return;
     if (result.sortOrder) {
       const el = document.querySelector(`[name="sort"][value="${result.sortOrder}"]`);
       if (el) el.checked = true;
@@ -11,6 +13,7 @@
       const el = document.querySelector(`[name="range"][value="${result.timeRange}"]`);
       if (el) el.checked = true;
     }
+    restored = true;
   });
 
   function sendSettings() {
@@ -29,6 +32,9 @@
   }
 
   document.querySelectorAll('[name="sort"], [name="range"]').forEach((el) => {
-    el.addEventListener('change', sendSettings);
+    el.addEventListener('change', () => {
+      restored = true;
+      sendSettings();
+    });
   });
 })();
