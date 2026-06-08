@@ -149,8 +149,18 @@
         return;
       }
 
+      const parent = sorted[0].card.parentElement;
+      console.log('[RFT] applySort parent:', parent.tagName + (parent.className ? '.' + parent.className.slice(0, 20) : ''));
       console.log('[RFT] applySort moving', sorted.length, 'cards...');
       sorted.forEach((item) => item.card.parentElement.appendChild(item.card));
+      // Verify: log first 3 and last 3 timestamps from DOM after move
+      const afterCards = findAllCards();
+      const afterTimes = afterCards.map((c) => {
+        const t = getCardTimestamp(c);
+        return t ? new Date(t).toISOString() : null;
+      });
+      console.log('[RFT] applySort AFTER DOM (first 3 / last 3):',
+        afterTimes.slice(0, 3), '...', afterTimes.slice(-3));
       console.log('[RFT] applySort DONE');
     });
   }
