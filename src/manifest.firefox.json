@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RedNote Feed Time",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Shows the generation time of notes on Xiaohongshu (RedNote) feeds by decoding the note ID.",
   "host_permissions": [
     "https://www.xiaohongshu.com/explore*",
@@ -21,5 +21,15 @@
     "16": "icon.png",
     "48": "icon.png",
     "128": "icon.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "@rednote-feed-time",
+      "strict_min_version": "127.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    },
+    "gecko_android": {}
   }
 }

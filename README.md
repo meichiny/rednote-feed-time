@@ -14,19 +14,44 @@
 
 ## 安装
 
-### 从 GitHub Release 安装
+### 构建
 
-1. 前往 [Releases](https://github.com/meichiny/rednote-feed-time/releases) 页面，下载最新版本的 `rednote-feed-time-v*.zip`
+```bash
+npm install
+npm run build          # 构建 Chrome + Firefox 两版
+npm run build:chrome   # 仅 Chrome
+npm run build:firefox  # 仅 Firefox
+```
+
+构建产物位于 `dist/` 目录。
+
+### Chrome
+
+1. 前往 [Releases](https://github.com/meichiny/rednote-feed-time/releases) 页面，下载最新版本的 `rednote-feed-time-chrome-v*.zip`
 2. 解压到本地文件夹
 3. 打开 `chrome://extensions`
 4. 开启「开发者模式」（右上角）
 5. 点击「加载已解压的扩展程序」
 6. 选择解压后的文件夹
 
+或直接加载 `dist/chrome/`（本地构建后）。
+
+### Firefox（本地开发）
+
+1. 构建扩展：`npm install && npm run build:firefox`
+2. 打开 `about:debugging#/runtime/this-firefox`
+3. 点击「加载临时附加组件」
+4. 选择 `dist/firefox/manifest.json`
+
+### Firefox（AMO 发布）
+
+前往 [addons.mozilla.org](https://addons.mozilla.org) 提交 `dist/packages/rednote-feed-time-firefox-v*.xpi`
+
 ## 支持页面
 
 - `xiaohongshu.com/explore` — 首页推荐
 - `xiaohongshu.com/user/profile/*` — 用户主页
+- Firefox Android 同样支持
 
 ## 许可证
 
@@ -50,19 +75,44 @@ The first 8 hex characters of each note ID encode a Unix timestamp (seconds). Th
 
 ## Installation
 
-### Install from GitHub Release
+### Build from source
 
-1. Go to the [Releases](https://github.com/meichiny/rednote-feed-time/releases) page and download the latest `rednote-feed-time-v*.zip`
+```bash
+npm install
+npm run build          # build both Chrome & Firefox versions
+npm run build:chrome   # Chrome only
+npm run build:firefox  # Firefox only
+```
+
+Output goes to `dist/`.
+
+### Chrome
+
+1. Go to the [Releases](https://github.com/meichiny/rednote-feed-time/releases) page and download the latest `rednote-feed-time-chrome-v*.zip`
 2. Unzip to a local folder
 3. Open `chrome://extensions`
 4. Enable "Developer mode" (top right)
 5. Click "Load unpacked"
 6. Select the unzipped folder
 
+Or load `dist/chrome/` directly (after local build).
+
+### Firefox (development)
+
+1. Build the extension: `npm install && npm run build:firefox`
+2. Open `about:debugging#/runtime/this-firefox`
+3. Click "Load Temporary Add-on"
+4. Select `dist/firefox/manifest.json`
+
+### Firefox (AMO release)
+
+Submit `dist/packages/rednote-feed-time-firefox-v*.xpi` to [addons.mozilla.org](https://addons.mozilla.org)
+
 ## Supported Pages
 
 - `xiaohongshu.com/explore` — Home feed
 - `xiaohongshu.com/user/profile/*` — User profile
+- Firefox Android is also supported
 
 ## License
 

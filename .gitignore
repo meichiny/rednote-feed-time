@@ -2,3 +2,6 @@
 *.log
 .gitignore
 DEVELOPMENT_NOTES.md
+
+dist/
+node_modules/
