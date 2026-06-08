@@ -32,6 +32,8 @@ async function build(target) {
   await copyFile(manifestPath, path.join(DIST, 'manifest.json'));
   await copyFile(path.join(SRC, 'content.js'), path.join(DIST, 'content.js'));
   await copyFile(path.join(SRC, 'icon.png'), path.join(DIST, 'icon.png'));
+  await copyFile(path.join(SRC, 'icon16.png'), path.join(DIST, 'icon16.png'));
+  await copyFile(path.join(SRC, 'icon48.png'), path.join(DIST, 'icon48.png'));
   if (existsSync('LICENSE')) {
     await copyFile('LICENSE', path.join(DIST, 'LICENSE'));
   }
