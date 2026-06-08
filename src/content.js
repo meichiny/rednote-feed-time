@@ -15,7 +15,12 @@
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
-  const isProfilePage = window.location.pathname.startsWith('/user/profile/');
+  let state = { sortOrder: 'none', timeRange: 'all' };
+  let hiddenCards = new WeakSet();
+
+  function isProfilePage() {
+    return window.location.pathname.startsWith('/user/profile/');
+  }
 
   function injectTime(noteLink) {
     const m = noteLink.getAttribute('href').match(NOTE_ID_REGEX);
@@ -43,7 +48,7 @@
       padding: '1px 0',
     });
 
-    if (isProfilePage) {
+    if (isProfilePage()) {
       const footer = card.querySelector('.footer');
       if (footer) {
         requestAnimationFrame(() => {
@@ -60,6 +65,88 @@
     userLink.parentElement.insertAdjacentElement('afterend', timeDiv);
   }
 
+  function getCardTimestamp(card) {
+    const link = card.querySelector('a[href^="/explore/"]');
+    if (!link) return null;
+    const m = link.getAttribute('href').match(NOTE_ID_REGEX);
+    if (!m) return null;
+    return decodeTimestamp(m[1]).getTime();
+  }
+
+  function findAllCards() {
+    const cards = [];
+    const seen = new Set();
+    document.querySelectorAll('a[href^="/explore/"]').forEach((link) => {
+      let card = link.parentElement;
+      while (card && card !== document.body) {
+        if (card.querySelector('a[href^="/explore/"]') && card.querySelector('a[href*="/user/profile/"]')) {
+          break;
+        }
+        card = card.parentElement;
+      }
+      if (card && card !== document.body && !seen.has(card)) {
+        seen.add(card);
+        cards.push(card);
+      }
+    });
+    return cards;
+  }
+
+  function getCutoff() {
+    const now = Date.now();
+    switch (state.timeRange) {
+      case '7d': return now - 7 * 86400000;
+      case '30d': return now - 30 * 86400000;
+      case '365d': return now - 365 * 86400000;
+      default: return 0;
+    }
+  }
+
+  function applySort(cards) {
+    if (state.sortOrder === 'none') return;
+    const groups = new Map();
+    cards.forEach((card) => {
+      const parent = card.parentElement;
+      if (!groups.has(parent)) groups.set(parent, []);
+      groups.get(parent).push(card);
+    });
+    groups.forEach((groupCards) => {
+      const sorted = groupCards
+        .map((card) => ({ card, time: getCardTimestamp(card) }))
+        .filter((item) => item.time !== null)
+        .sort((a, b) => (state.sortOrder === 'asc' ? a.time - b.time : b.time - a.time));
+
+      const validCards = groupCards.filter((c) => getCardTimestamp(c) !== null);
+      const needsReorder = sorted.some((item, i) => item.card !== validCards[i]);
+      if (!needsReorder) return;
+
+      sorted.forEach((item) => item.card.parentElement.appendChild(item.card));
+    });
+  }
+
+  function applyFilter(cards) {
+    const cutoff = getCutoff();
+    cards.forEach((card) => {
+      const time = getCardTimestamp(card);
+      if (time === null) return;
+      const shouldHide = time < cutoff;
+      if (shouldHide) {
+        card.style.display = 'none';
+        hiddenCards.add(card);
+      } else if (hiddenCards.has(card)) {
+        card.style.display = '';
+        hiddenCards.delete(card);
+      }
+    });
+  }
+
+  function reapply() {
+    const cards = findAllCards();
+    if (!cards.length) return;
+    applySort(cards);
+    applyFilter(cards);
+  }
+
   let scanTimer;
 
   function scan() {
@@ -67,9 +154,28 @@
     if (!pn.startsWith('/explore') && !pn.startsWith('/user/profile/')) return;
     if (pn.includes('search') || window.location.search.includes('keyword')) return;
     document.querySelectorAll('a[href^="/explore/"]').forEach(injectTime);
+    if (state.sortOrder !== 'none' || state.timeRange !== 'all') {
+      reapply();
+    }
+  }
+
+  function handleMessage(msg) {
+    if (['none', 'asc', 'desc'].includes(msg.sortOrder)) state.sortOrder = msg.sortOrder;
+    if (['all', '7d', '30d', '365d'].includes(msg.timeRange)) state.timeRange = msg.timeRange;
+    reapply();
   }
 
   scan();
+
+  chrome.runtime.onMessage.addListener(handleMessage);
+
+  chrome.storage.local.get(['sortOrder', 'timeRange'], (result) => {
+    if (result.sortOrder && result.sortOrder !== 'none') state.sortOrder = result.sortOrder;
+    if (result.timeRange && result.timeRange !== 'all') state.timeRange = result.timeRange;
+    if (state.sortOrder !== 'none' || state.timeRange !== 'all') {
+      reapply();
+    }
+  });
 
   const observer = new MutationObserver(() => {
     clearTimeout(scanTimer);
