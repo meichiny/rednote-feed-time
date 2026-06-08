@@ -74,7 +74,6 @@
     return decodeTimestamp(m[1]).getTime();
   }
 
-  let debugCardCount = 0;
   function findAllCards() {
     const cards = [];
     const seen = new Set();
@@ -94,6 +93,7 @@
 
     if (cards.length < 2) return cards;
 
+    // Walk up until cards share a parent with 2+ card siblings
     let result = cards;
     for (let i = 0; i < 3; i++) {
       const parent = result[0].parentElement;
@@ -106,7 +106,8 @@
       result = [...new Set(result)];
       if (result.length < 2) break;
     }
-    return result;
+    // Deduplicate: only keep outermost ancestors (filter out nested elements)
+    return result.filter((card, _, all) => !all.some((other) => other !== card && other.contains(card)));
   }
 
   function getCutoff() {
