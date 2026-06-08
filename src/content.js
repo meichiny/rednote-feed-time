@@ -121,7 +121,10 @@
   }
 
   function applySort(cards) {
-    if (state.sortOrder === 'none') return;
+    if (state.sortOrder === 'none') {
+      cards.forEach((card) => card.style.removeProperty('order'));
+      return;
+    }
     const groups = new Map();
     cards.forEach((card) => {
       const parent = card.parentElement;
@@ -129,39 +132,13 @@
       groups.get(parent).push(card);
     });
     groups.forEach((groupCards) => {
-      const entries = groupCards.map((card) => ({ card, time: getCardTimestamp(card) }));
-      const times = entries.map((e) => e.time ? new Date(e.time).toISOString() : null);
-      console.log('[RFT] applySort DOM-order times (first 3 / last 3):',
-        times.slice(0, 3), '...', times.slice(-3));
-
-      const sorted = entries
+      const sorted = groupCards
+        .map((card) => ({ card, time: getCardTimestamp(card) }))
         .filter((item) => item.time !== null)
         .sort((a, b) => (state.sortOrder === 'asc' ? a.time - b.time : b.time - a.time));
-      const sortedTimes = sorted.map((e) => new Date(e.time).toISOString());
-      console.log('[RFT] applySort sorted times (first 3 / last 3):',
-        sortedTimes.slice(0, 3), '...', sortedTimes.slice(-3));
 
-      const validCards = groupCards.filter((c) => getCardTimestamp(c) !== null);
-      const firstDiff = sorted.findIndex((item, i) => item.card !== validCards[i]);
-      console.log('[RFT] applySort firstDiff index:', firstDiff, 'of', sorted.length);
-      if (firstDiff === -1) {
-        console.log('[RFT] applySort DOM already matches sort order, skipping');
-        return;
-      }
-
-      const parent = sorted[0].card.parentElement;
-      console.log('[RFT] applySort parent:', parent.tagName + (parent.className ? '.' + parent.className.slice(0, 20) : ''));
-      console.log('[RFT] applySort moving', sorted.length, 'cards...');
-      sorted.forEach((item) => item.card.parentElement.appendChild(item.card));
-      // Verify: log first 3 and last 3 timestamps from DOM after move
-      const afterCards = findAllCards();
-      const afterTimes = afterCards.map((c) => {
-        const t = getCardTimestamp(c);
-        return t ? new Date(t).toISOString() : null;
-      });
-      console.log('[RFT] applySort AFTER DOM (first 3 / last 3):',
-        afterTimes.slice(0, 3), '...', afterTimes.slice(-3));
-      console.log('[RFT] applySort DONE');
+      sorted.forEach((item, i) => { item.card.style.order = i; });
+      console.log('[RFT] applySort sorted', sorted.length, 'cards via CSS order');
     });
   }
 
