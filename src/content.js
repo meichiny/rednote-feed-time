@@ -128,12 +128,12 @@
     const cutoff = getCutoff();
     cards.forEach((card) => {
       const time = getCardTimestamp(card);
-      if (time === null) return;
-      const shouldHide = time < cutoff;
-      if (shouldHide) {
+      if (time !== null && time < cutoff) {
         card.style.display = 'none';
         hiddenCards.add(card);
-      } else if (hiddenCards.has(card)) {
+        return;
+      }
+      if (hiddenCards.has(card)) {
         card.style.display = '';
         hiddenCards.delete(card);
       }
