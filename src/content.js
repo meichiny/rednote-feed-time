@@ -89,7 +89,22 @@
         cards.push(card);
       }
     });
-    return cards;
+
+    if (cards.length < 2) return cards;
+
+    let result = cards;
+    for (let i = 0; i < 3; i++) {
+      const parent = result[0].parentElement;
+      if (!parent || parent === document.body) break;
+      const siblings = Array.from(parent.children).filter(
+        (child) => child.querySelector('a[href^="/explore/"]')
+      );
+      if (siblings.length >= 2) break;
+      result = result.map((c) => c.parentElement).filter(Boolean);
+      result = [...new Set(result)];
+      if (result.length < 2) break;
+    }
+    return result;
   }
 
   function getCutoff() {
