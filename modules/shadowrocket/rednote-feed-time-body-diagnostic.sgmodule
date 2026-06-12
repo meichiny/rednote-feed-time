@@ -1,0 +1,10 @@
+#!name=小红书 Feed 时间 - Body诊断
+#!desc=诊断模块（Body Rewrite版）：验证 Body Rewrite 是否生效
+#!author=rednote-feed-time
+#!system=ios
+
+[Body Rewrite]
+http-response ^https?:\/\/[a-z]+\.xiaohongshu\.com\/api\/sns\/v\d+\/homefeed body-replace-regex "\"display_title\":\"([^\"]+)\"" "\"display_title\":\"✅BR-$1\""
+
+[MITM]
+hostname = %APPEND% *.xiaohongshu.com
