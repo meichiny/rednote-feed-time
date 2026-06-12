@@ -4,7 +4,9 @@
 #!system=ios
 
 [Script]
-rednote-feed-time = type=http-response,pattern=^https:\/\/rec\.xiaohongshu\.com\/api\/sns\/v6\/homefeed,script-path=https://raw.githubusercontent.com/meichiny/rednote-feed-time/shadowrocket-module/modules/shadowrocket/rednote-feed-time.js,requires-body=true,max-size=-1,timeout=60
+rednote-feed-time = type=http-response,pattern=^https:\/\/(rec|edith)\.xiaohongshu\.com\/api\/sns\/v6\/homefeed,script-path=https://raw.githubusercontent.com/meichiny/rednote-feed-time/shadowrocket-module/modules/shadowrocket/rednote-feed-time.js,requires-body=true,max-size=-1,timeout=60
+rednote-feed-time-img = type=http-response,pattern=^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v2\/note\/feed,script-path=https://raw.githubusercontent.com/meichiny/rednote-feed-time/shadowrocket-module/modules/shadowrocket/rednote-feed-time.js,requires-body=true,max-size=-1,timeout=60
+rednote-feed-time-video = type=http-response,pattern=^https:\/\/edith\.xiaohongshu\.com\/api\/sns\/v3\/note\/videofeed,script-path=https://raw.githubusercontent.com/meichiny/rednote-feed-time/shadowrocket-module/modules/shadowrocket/rednote-feed-time.js,requires-body=true,max-size=-1,timeout=60
 
 [MITM]
-hostname = %APPEND% rec.xiaohongshu.com
+hostname = %APPEND% rec.xiaohongshu.com, edith.xiaohongshu.com
