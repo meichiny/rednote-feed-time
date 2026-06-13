@@ -95,7 +95,7 @@ obj.data → Array
 
 ### QUIC 处理
 
-小米书 App 使用 QUIC/HTTP3 连接 CDN，绕过 MITM。需阻断 UDP 443 端口到 xiaohongshu.com 的流量，强制降级 HTTPS。
+小红书 App 使用 QUIC/HTTP3 连接 CDN，绕过 MITM。需阻断 UDP 443 端口到 xiaohongshu.com 的流量，强制降级 HTTPS。
 
 - Quantumult X: `[general] udp_drop_list=443`（全局）
 - Shadowrocket: `[Rule] AND,((PROTOCOL,UDP),(DST-PORT,443),(DOMAIN-SUFFIX,xiaohongshu.com)),REJECT`
@@ -105,5 +105,5 @@ obj.data → Array
 | Platform | Status |
 |----------|--------|
 | Quantumult X | ✅ 已验证通过 |
-| Shadowrocket | ❌ 模块格式问题待排查 |
+| Shadowrocket | ✅ 已验证通过 |
 | Chrome 扩展 | ✅ 已有独立实现 |
