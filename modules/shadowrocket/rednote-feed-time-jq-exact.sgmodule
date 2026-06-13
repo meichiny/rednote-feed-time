@@ -1,0 +1,16 @@
+#!name=小红书 Feed 时间 - JQ 精确复刻
+#!desc=完全复刻视频屏蔽模块的格式，仅改 jq 表达式
+#!author=rednote-feed-time
+#!system=ios
+
+[Rule]
+AND,((PROTOCOL,UDP),(DST-PORT,443),(DOMAIN-SUFFIX,xiaohongshu.com)),REJECT
+
+[URL Rewrite]
+^https?:\/\/[a-z]+\.xiaohongshu\.com\/api\/sns\/v\d+\/homefeed\? reject
+
+[Body Rewrite]
+http-response-jq ^https?:\/\/[a-z]+\.xiaohongshu\.com\/api\/sns\/v\d+\/homefeed\? path=$.data..model_type, body=$.data..display_title | .data[] |= if .model_type == "note" and .display_title then .display_title = "✅ " + .display_title else . end
+
+[MITM]
+hostname = %APPEND% *.xiaohongshu.com
