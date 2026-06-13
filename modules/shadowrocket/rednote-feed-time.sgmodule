@@ -3,6 +3,9 @@
 #!author=rednote-feed-time
 #!system=ios
 
+# 如本模块的 QUIC 阻断规则未生效，请在主配置中手动添加：
+# 配置 → 长按当前配置 → 编辑纯文本 → 找到 [Rule] 区域 → 顶部添加：
+# AND,((PROTOCOL,UDP),(DST-PORT,443),(DOMAIN-SUFFIX,xiaohongshu.com)),REJECT
 [Rule]
 AND,((PROTOCOL,UDP),(DST-PORT,443),(DOMAIN-SUFFIX,xiaohongshu.com)),REJECT
 
