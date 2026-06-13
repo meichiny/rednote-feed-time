@@ -2,7 +2,6 @@
   const { pathname, search } = window.location;
   if (!pathname.startsWith('/explore') && !pathname.startsWith('/user/profile/')) return;
   if (pathname.includes('search') || search.includes('keyword')) return;
-  console.log('[RFT] content script loaded, pathname:', pathname);
 
   const NOTE_ID_REGEX = /\/explore\/([a-f0-9]{24})/;
 
@@ -16,7 +15,7 @@
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
-  let state = { sortOrder: 'none', timeRange: 'all' };
+  let timeRange = 'all';
   let hiddenCards = new WeakSet();
 
   function isProfilePage() {
@@ -74,8 +73,18 @@
     return decodeTimestamp(m[1]).getTime();
   }
 
-  function findAllCards() {
-    const cards = [];
+  function getCutoff() {
+    const now = Date.now();
+    switch (timeRange) {
+      case '7d': return now - 7 * 86400000;
+      case '30d': return now - 30 * 86400000;
+      case '365d': return now - 365 * 86400000;
+      default: return 0;
+    }
+  }
+
+  function applyFilter() {
+    const cutoff = getCutoff();
     const seen = new Set();
     document.querySelectorAll('a[href^="/explore/"]').forEach((link) => {
       let card = link.parentElement;
@@ -85,102 +94,18 @@
         }
         card = card.parentElement;
       }
-      if (card && card !== document.body && !seen.has(card)) {
-        seen.add(card);
-        cards.push(card);
-      }
-    });
+      if (!card || card === document.body || seen.has(card)) return;
+      seen.add(card);
 
-    if (cards.length < 2) return cards;
-
-    // Walk up until cards share a parent with 2+ card siblings
-    let result = cards;
-    for (let i = 0; i < 3; i++) {
-      const parent = result[0].parentElement;
-      if (!parent || parent === document.body) break;
-      const siblings = Array.from(parent.children).filter(
-        (child) => child.querySelector('a[href^="/explore/"]')
-      );
-      if (siblings.length >= 2) break;
-      result = result.map((c) => c.parentElement).filter(Boolean);
-      result = [...new Set(result)];
-      if (result.length < 2) break;
-    }
-    // Deduplicate: only keep outermost ancestors (filter out nested elements)
-    return result.filter((card, _, all) => !all.some((other) => other !== card && other.contains(card)));
-  }
-
-  function getCutoff() {
-    const now = Date.now();
-    switch (state.timeRange) {
-      case '7d': return now - 7 * 86400000;
-      case '30d': return now - 30 * 86400000;
-      case '365d': return now - 365 * 86400000;
-      default: return 0;
-    }
-  }
-
-  function applySort(cards) {
-    if (state.sortOrder === 'none') {
-      cards.forEach((card) => card.style.removeProperty('order'));
-      console.log('[RFT] applySort reset order');
-      return;
-    }
-    const groups = new Map();
-    cards.forEach((card) => {
-      const parent = card.parentElement;
-      if (!groups.has(parent)) groups.set(parent, []);
-      groups.get(parent).push(card);
-    });
-    groups.forEach((groupCards) => {
-      const parent = groupCards[0].parentElement;
-      const parentDisplay = getComputedStyle(parent).display;
-      console.log('[RFT] applySort parent display:', parentDisplay);
-
-      const sorted = groupCards
-        .map((card) => ({ card, time: getCardTimestamp(card) }))
-        .filter((item) => item.time !== null)
-        .sort((a, b) => (state.sortOrder === 'asc' ? a.time - b.time : b.time - a.time));
-
-      sorted.forEach((item, i) => {
-        item.card.style.setProperty('order', String(i), 'important');
-        item.card.style.setProperty('-webkit-order', String(i), 'important');
-      });
-      // Verify order was set
-      const check = sorted[0].card.style.order;
-      console.log('[RFT] applied order via CSS, sample order=', check);
-
-      // After 2s, check if order was reverted
-      setTimeout(() => {
-        const still = sorted[0].card.style.order;
-        console.log('[RFT] order after 2s:', still, '(reverted?', still !== check ? 'YES' : 'no');
-      }, 2000);
-    });
-  }
-
-  function applyFilter(cards) {
-    const cutoff = getCutoff();
-    cards.forEach((card) => {
       const time = getCardTimestamp(card);
       if (time !== null && time < cutoff) {
         card.style.display = 'none';
         hiddenCards.add(card);
-        return;
-      }
-      if (hiddenCards.has(card)) {
+      } else if (hiddenCards.has(card)) {
         card.style.display = '';
         hiddenCards.delete(card);
       }
     });
-  }
-
-  function reapply() {
-    const cards = findAllCards();
-    console.log('[RFT] reapply: found', cards.length, 'cards at levels',
-      cards.map((c) => c.tagName + (c.className ? '.' + c.className.split(' ')[0] : '')));
-    if (!cards.length) return;
-    applySort(cards);
-    applyFilter(cards);
   }
 
   let scanTimer;
@@ -190,28 +115,24 @@
     if (!pn.startsWith('/explore') && !pn.startsWith('/user/profile/')) return;
     if (pn.includes('search') || window.location.search.includes('keyword')) return;
     document.querySelectorAll('a[href^="/explore/"]').forEach(injectTime);
-    if (state.sortOrder !== 'none' || state.timeRange !== 'all') {
-      reapply();
+    if (timeRange !== 'all') {
+      applyFilter();
     }
   }
 
   function handleMessage(msg) {
-    console.log('[RFT] handleMessage received:', JSON.stringify(msg));
-    if (['none', 'asc', 'desc'].includes(msg.sortOrder)) state.sortOrder = msg.sortOrder;
-    if (['all', '7d', '30d', '365d'].includes(msg.timeRange)) state.timeRange = msg.timeRange;
-    console.log('[RFT] handleMessage state now:', JSON.stringify(state));
-    reapply();
+    if (['all', '7d', '30d', '365d'].includes(msg.timeRange)) timeRange = msg.timeRange;
+    applyFilter();
   }
 
   scan();
 
   chrome.runtime.onMessage.addListener(handleMessage);
 
-  chrome.storage.local.get(['sortOrder', 'timeRange'], (result) => {
-    if (result.sortOrder && result.sortOrder !== 'none') state.sortOrder = result.sortOrder;
-    if (result.timeRange && result.timeRange !== 'all') state.timeRange = result.timeRange;
-    if (state.sortOrder !== 'none' || state.timeRange !== 'all') {
-      reapply();
+  chrome.storage.local.get(['timeRange'], (result) => {
+    if (result.timeRange && result.timeRange !== 'all') timeRange = result.timeRange;
+    if (timeRange !== 'all') {
+      applyFilter();
     }
   });
 
