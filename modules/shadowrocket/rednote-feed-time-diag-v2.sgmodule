@@ -1,0 +1,10 @@
+#!name=小红书 Feed 时间 - 诊断 v2
+#!desc=格式修正版诊断：第一条笔记标题替换为 ✅DIAG-xxxxxx
+#!author=rednote-feed-time
+#!system=ios
+
+[Script]
+rednote-feed-time-diag-v2 = type=http-response, pattern=^https?:\/\/[a-z]+\.xiaohongshu\.com\/api\/sns\/v\d+\/homefeed\?, script-path=https://raw.githubusercontent.com/meichiny/rednote-feed-time/shadowrocket-module/modules/shadowrocket/rednote-feed-time-test.js, requires-body=true, timeout=60
+
+[MITM]
+hostname = %APPEND% *.xiaohongshu.com
